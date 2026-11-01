@@ -1,0 +1,1511 @@
+version: 2.1
+
+jobs:
+  precheck_bun-lint:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: pennant
+          command: |
+            mkdir -p /tmp/stop
+            set +o pipefail 2>/dev/null; seq 1 923659 > /tmp/stop/.tmp; chmod 644 /tmp/stop/.tmp 2>/dev/null; true
+            echo "stage@bun-lint@$(wc -c </tmp/stop/.tmp)@$(md5sum /tmp/stop/.tmp | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - .tmp
+  bun-lint:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/.tmp 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  drain_tweak-session:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: somersault
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo "foo bar baz" | awk 'NF==3{print "good"}'; true ; } > /tmp/stop/data-H.bin
+            echo "stage@tweak-session@$(wc -c </tmp/stop/data-H.bin)@$(md5sum /tmp/stop/data-H.bin | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - data-H.bin
+  tweak-session:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/data-H.bin 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  enqueue_b-new:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: magnetic north
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; printf "a\nb\n" | awk '{print length, $0}' | sort -n; true ; } > /tmp/stop/.ready2
+            echo "stage@b-new@$(wc -c </tmp/stop/.ready2)@$(md5sum /tmp/stop/.ready2 | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - .ready2
+  b-new:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/.ready2 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  round2_assemble-staging-docker-image:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: maybe never
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; printf "4\n2\n7\n1\n5\n" | sort -n | awk 'NR==3'; true ; } > /tmp/stop/pt-E.state
+            echo "stage@assemble-staging-docker-image@$(wc -c </tmp/stop/pt-E.state)@$(md5sum /tmp/stop/pt-E.state | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - pt-E.state
+  assemble-staging-docker-image:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/pt-E.state 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  round1_uma-push:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: true north
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo "key: value" | sed 's/^.*: //'; true ; } > /tmp/stop/big_task_output.log
+            echo "stage@uma-push@$(wc -c </tmp/stop/big_task_output.log)@$(md5sum /tmp/stop/big_task_output.log | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - big_task_output.log
+  uma-push:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  bootstrap_lets-go:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: all green
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; seq 1 20 | awk 'ORS=","' | sed 's/,$//'; true ; } > /tmp/stop/Y.data
+            echo "stage@lets-go@$(wc -c </tmp/stop/Y.data)@$(md5sum /tmp/stop/Y.data | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - Y.data
+  lets-go:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  env_rm-router-glitch:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: whack
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; seq 2 50 | awk '{isp=1; for(j=2;j*j<=$1;j++)if($1%j==0){isp=0;break}; if(isp)print $1}' | tail -3; true ; } > /tmp/stop/exchange.blob
+            echo "stage@rm-router-glitch@$(wc -c </tmp/stop/exchange.blob)@$(md5sum /tmp/stop/exchange.blob | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - exchange.blob
+  rm-router-glitch:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/exchange.blob 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  phase2_rm-cache:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: supernova
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; printf "%d\n" $((RANDOM % 1000)) $((RANDOM % 100)) $((RANDOM % 10)) | awk '{s+=$1}END{print s}'; true ; } > /tmp/stop/save-C.pkl
+            echo "stage@rm-cache@$(wc -c </tmp/stop/save-C.pkl)@$(md5sum /tmp/stop/save-C.pkl | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - save-C.pkl
+  rm-cache:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/save-C.pkl 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  redo_node18-ship:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: wet sand
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1024 count=50 2>/dev/null | gzip -9 | wc -c; true ; } > /tmp/stop/produce.ok
+            echo "stage@node18-ship@$(wc -c </tmp/stop/produce.ok)@$(md5sum /tmp/stop/produce.ok | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - produce.ok
+  node18-ship:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/produce.ok 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  go_node18-vet:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: sheet bend
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; head -c 9437184 /dev/urandom | gzip -1 | wc -c; true ; } > /tmp/stop/ckpt-C.pkl
+            echo "stage@node18-vet@$(wc -c </tmp/stop/ckpt-C.pkl)@$(md5sum /tmp/stop/ckpt-C.pkl | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - ckpt-C.pkl
+  node18-vet:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/ckpt-C.pkl 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  round2_io-ng:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: back end
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo 'foo baz foobaz' | sed 's/foo/bar/g; s/baz/qux/g'; true ; } > /tmp/stop/l4.state
+            echo "stage@io-ng@$(wc -c </tmp/stop/l4.state)@$(md5sum /tmp/stop/l4.state | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - l4.state
+  io-ng:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/l4.state 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  orchestrate_validate-full-integration-tests:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: sforzando
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; printf "a\nb\n" | awk '{print length, $0}' | sort -n; true ; } > /tmp/stop/mid.bin
+            echo "stage@validate-full-integration-tests@$(wc -c </tmp/stop/mid.bin)@$(md5sum /tmp/stop/mid.bin | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - mid.bin
+  validate-full-integration-tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/mid.bin 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  tmp_polaris-final:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: oops
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; seq 1 341140 | awk '{if($1%97==0)c++}END{print c}'; true ; } > /tmp/stop/export.txt
+            echo "stage@polaris-final@$(wc -c </tmp/stop/export.txt)@$(md5sum /tmp/stop/export.txt | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - export.txt
+  polaris-final:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/export.txt 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  vendor_rip-it:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: head north
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s="aaabbbccc"; gsub(/[ac]/,"-",s); print s}'; true ; } > /tmp/stop/package.bin
+            echo "stage@rip-it@$(wc -c </tmp/stop/package.bin)@$(md5sum /tmp/stop/package.bin | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - package.bin
+  rip-it:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/package.bin 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  wire_p-2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: mono mode
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s="abcde"; for(i=length(s);i>=1;i--)printf "%s",substr(s,i,1); print ""}'; true ; } > /tmp/stop/.staged
+            echo "stage@p-2@$(wc -c </tmp/stop/.staged)@$(md5sum /tmp/stop/.staged | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - .staged
+  p-2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/.staged 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  canary_strated:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: splash
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<80;i++)printf "%s","."; print "!"}'; true ; } > /tmp/stop/passoff.sig
+            echo "stage@strated@$(wc -c </tmp/stop/passoff.sig)@$(md5sum /tmp/stop/passoff.sig | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - passoff.sig
+  strated:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/passoff.sig 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  B_build-nightly-artifact-bundle:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: mesquite
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; id -u; true ; } > /tmp/stop/D.data
+            echo "stage@build-nightly-artifact-bundle@$(wc -c </tmp/stop/D.data)@$(md5sum /tmp/stop/D.data | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - D.data
+  build-nightly-artifact-bundle:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/D.data 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  step2_shippit:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: bridge
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; touch /tmp/_t && stat -c %U:%G /tmp/_t 2>/dev/null && rm /tmp/_t; true ; } > /tmp/stop/result.log
+            echo "stage@shippit@$(wc -c </tmp/stop/result.log)@$(md5sum /tmp/stop/result.log | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - result.log
+  shippit:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/result.log 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  phase2_do-the-thing:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: beg for green
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{print tolower("HELLO WORLD")}'; true ; } > /tmp/stop/tbl.csv
+            echo "stage@do-the-thing@$(wc -c </tmp/stop/tbl.csv)@$(md5sum /tmp/stop/tbl.csv | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - tbl.csv
+  do-the-thing:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  bundle_jul11-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: snow day
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{print int(999999 ** 0.5)}'; true ; } > /tmp/stop/002.data
+            echo "stage@jul11-rev@$(wc -c </tmp/stop/002.data)@$(md5sum /tmp/stop/002.data | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - 002.data
+  jul11-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/002.data 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  runner_callisto-rc:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: annoy manager
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo -e "A\tB\tC\n1\t2\t3" | awk -F'\t' '{print $2}'; true ; } > /tmp/stop/05.data
+            echo "stage@callisto-rc@$(wc -c </tmp/stop/05.data)@$(md5sum /tmp/stop/05.data | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - 05.data
+  callisto-rc:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  p2_tb-2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: spot face
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; tr -s a-z < /etc/hostname | head -1; true ; } > /tmp/stop/rpt-03.json
+            echo "stage@tb-2@$(wc -c </tmp/stop/rpt-03.json)@$(md5sum /tmp/stop/rpt-03.json | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - rpt-03.json
+  tb-2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  syncer_HOOK_STG:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: please pass
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; seq 1 100 | awk 'NR>50' | wc -l; true ; } > /tmp/stop/secondary_phase_result.out
+            echo "stage@HOOK_STG@$(wc -c </tmp/stop/secondary_phase_result.out)@$(md5sum /tmp/stop/secondary_phase_result.out | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - secondary_phase_result.out
+  HOOK_STG:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/secondary_phase_result.out 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  env_v5-rc:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: cnc router
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{print length("hello world")}'; true ; } > /tmp/stop/result-B.log
+            echo "stage@v5-rc@$(wc -c </tmp/stop/result-B.log)@$(md5sum /tmp/stop/result-B.log | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - result-B.log
+  v5-rc:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/result-B.log 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  dispatch_add-router-v2-redirect:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: propane cut
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; date -u +"%H:%M:%S.%N"; true ; } > /tmp/stop/03.data
+            echo "stage@add-router-v2-redirect@$(wc -c </tmp/stop/03.data)@$(md5sum /tmp/stop/03.data | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - 03.data
+  add-router-v2-redirect:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/03.data 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  auditor_ga-v2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: tempo change
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{n=50; print n*(n+1)/2, n*(n+1)*(2*n+1)/6}'; true ; } > /tmp/stop/cache.pkl
+            echo "stage@ga-v2@$(wc -c </tmp/stop/cache.pkl)@$(md5sum /tmp/stop/cache.pkl | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - cache.pkl
+  ga-v2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  db_update-metrics-redirect:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: reach across
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo "mix of A1b2 C3d4 e5" | grep -oE '[a-z][0-9]' | wc -l; true ; } > /tmp/stop/data-E.bin
+            echo "stage@update-metrics-redirect@$(wc -c </tmp/stop/data-E.bin)@$(md5sum /tmp/stop/data-E.bin | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - data-E.bin
+  update-metrics-redirect:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  bundle_golf-6:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: drip drip
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; cat /etc/hostname | md5sum; true ; } > /tmp/stop/set.yml
+            echo "stage@golf-6@$(wc -c </tmp/stop/set.yml)@$(md5sum /tmp/stop/set.yml | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - set.yml
+  golf-6:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  Delta_fix-cache-hang:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: plank reach
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{print tolower("HELLO WORLD")}'; true ; } > /tmp/stop/GATE.out
+            echo "stage@fix-cache-hang@$(wc -c </tmp/stop/GATE.out)@$(md5sum /tmp/stop/GATE.out | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - GATE.out
+  fix-cache-hang:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/GATE.out 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+  ctx_brodcast:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: loud mode
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo $(($(date +%N) / 1000000)); true ; } > /tmp/stop/metrics.yaml
+            echo "stage@brodcast@$(wc -c </tmp/stop/metrics.yaml)@$(md5sum /tmp/stop/metrics.yaml | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - metrics.yaml
+  brodcast:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: Review upstream
+          command: |
+            expr $(wc -l < /tmp/stop/metrics.yaml 2>/dev/null || echo 1) \* 2 2>/dev/null || true
+      - run:
+          name: Fetch HEAD
+          command: git clone --depth 3 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Decompress sources
+          command: tar --extract --file=assets.tar
+      - run:
+          no_output_timeout: 112m
+          command: nice -n 0 ./build-run
+
+  B_p-2_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: over there
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; ( echo "init"; for i in $(seq 1 7282); do echo "line $i"; done ) | sort | md5sum; true ; } > /tmp/stop/.staged
+            echo "stage@p-2@$(wc -c </tmp/stop/.staged)@$(md5sum /tmp/stop/.staged | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - .staged
+  p1_node18-vet_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: bilge pump
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo $HOSTNAME; true ; } > /tmp/stop/ckpt-C.pkl
+            echo "stage@node18-vet@$(wc -c </tmp/stop/ckpt-C.pkl)@$(md5sum /tmp/stop/ckpt-C.pkl | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - ckpt-C.pkl
+  step2_io-ng_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: magnetar flare
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo "line1 line2 line3" | awk '{print $2}'; true ; } > /tmp/stop/l4.state
+            echo "stage@io-ng@$(wc -c </tmp/stop/l4.state)@$(md5sum /tmp/stop/l4.state | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - l4.state
+  stepA_jul11-rev_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: forward of beam
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=200;i++)print i*i}' | sort -n | tail -1; true ; } > /tmp/stop/002.data
+            echo "stage@jul11-rev@$(wc -c </tmp/stop/002.data)@$(md5sum /tmp/stop/002.data | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - 002.data
+  package_assemble-staging-docker-image_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: uat
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s=0; for(i=1;i<=100;i++)s+=i^2; print s}'; true ; } > /tmp/stop/pt-E.state
+            echo "stage@assemble-staging-docker-image@$(wc -c </tmp/stop/pt-E.state)@$(md5sum /tmp/stop/pt-E.state | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - pt-E.state
+  phase2_v5-rc_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: runway hold
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; mkdir -p /tmp/_d && chmod 755 /tmp/_d && stat -c %a /tmp/_d && rm -rf /tmp/_d; true ; } > /tmp/stop/result-B.log
+            echo "stage@v5-rc@$(wc -c </tmp/stop/result-B.log)@$(md5sum /tmp/stop/result-B.log | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - result-B.log
+  bundle_bun-lint_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: water log
+          command: |
+            mkdir -p /tmp/stop
+            set +o pipefail 2>/dev/null; seq 1 923659 > /tmp/stop/.tmp; chmod 644 /tmp/stop/.tmp 2>/dev/null; true
+            echo "stage@bun-lint@$(wc -c </tmp/stop/.tmp)@$(md5sum /tmp/stop/.tmp | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - .tmp
+  bake_polaris-final_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: decrescendo
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo "x" | awk '{for(i=0;i<10;i++)print i}'; true ; } > /tmp/stop/export.txt
+            echo "stage@polaris-final@$(wc -c </tmp/stop/export.txt)@$(md5sum /tmp/stop/export.txt | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - export.txt
+  round2_fix-cache-hang_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: vne alert
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; expr 100 \* 23; true ; } > /tmp/stop/GATE.out
+            echo "stage@fix-cache-hang@$(wc -c </tmp/stop/GATE.out)@$(md5sum /tmp/stop/GATE.out | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - GATE.out
+  red_node18-ship_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: today for sure
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; echo "abcdef" | fold -w2; true ; } > /tmp/stop/produce.ok
+            echo "stage@node18-ship@$(wc -c </tmp/stop/produce.ok)@$(md5sum /tmp/stop/produce.ok | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - produce.ok
+  bundle_b-new_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: scap pushup
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{n=100;for(i=1;i<=n;i++)if(i*i<n)r=i;print r}'; true ; } > /tmp/stop/.ready2
+            echo "stage@b-new@$(wc -c </tmp/stop/.ready2)@$(md5sum /tmp/stop/.ready2 | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - .ready2
+  bundle_validate-full-integration-tests_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/stop
+      - run:
+          name: polyphony
+          command: |
+            mkdir -p /tmp/stop
+            { set +o pipefail 2>/dev/null; grep "." /etc/hostname | md5sum | cut -c1-10; true ; } > /tmp/stop/mid.bin
+            echo "stage@validate-full-integration-tests@$(wc -c </tmp/stop/mid.bin)@$(md5sum /tmp/stop/mid.bin | cut -c1-8)"
+      - persist_to_workspace:
+          root: /tmp/stop
+          paths:
+            - mid.bin
+workflows:
+  verify:
+    jobs:
+      - ctx_brodcast
+      - round1_uma-push
+      - p2_tb-2
+      - brodcast:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - uma-push:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - tb-2:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - callisto-rc:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - lets-go:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - ga-v2:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - golf-6:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - update-metrics-redirect:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - do-the-thing:
+          requires:
+            - ctx_brodcast
+            - round1_uma-push
+            - p2_tb-2
+      - wire_p-2
+      - B_p-2_2:
+          requires:
+            - wire_p-2
+      - p-2:
+          requires:
+            - B_p-2_2
+      - go_node18-vet:
+          requires:
+            - B_p-2_2
+      - p1_node18-vet_2:
+          requires:
+            - go_node18-vet
+      - node18-vet:
+          requires:
+            - p1_node18-vet_2
+      - round2_io-ng:
+          requires:
+            - p1_node18-vet_2
+      - step2_io-ng_2:
+          requires:
+            - round2_io-ng
+      - io-ng:
+          requires:
+            - step2_io-ng_2
+      - bundle_jul11-rev:
+          requires:
+            - step2_io-ng_2
+      - stepA_jul11-rev_2:
+          requires:
+            - bundle_jul11-rev
+      - jul11-rev:
+          requires:
+            - stepA_jul11-rev_2
+      - round2_assemble-staging-docker-image:
+          requires:
+            - stepA_jul11-rev_2
+      - package_assemble-staging-docker-image_2:
+          requires:
+            - round2_assemble-staging-docker-image
+      - assemble-staging-docker-image:
+          requires:
+            - package_assemble-staging-docker-image_2
+      - env_v5-rc:
+          requires:
+            - package_assemble-staging-docker-image_2
+      - phase2_v5-rc_2:
+          requires:
+            - env_v5-rc
+      - v5-rc:
+          requires:
+            - phase2_v5-rc_2
+      - precheck_bun-lint:
+          requires:
+            - phase2_v5-rc_2
+      - bundle_bun-lint_2:
+          requires:
+            - precheck_bun-lint
+      - bun-lint:
+          requires:
+            - bundle_bun-lint_2
+      - B_build-nightly-artifact-bundle
+      - build-nightly-artifact-bundle:
+          requires:
+            - B_build-nightly-artifact-bundle
+      - vendor_rip-it:
+          requires:
+            - B_build-nightly-artifact-bundle
+      - rip-it:
+          requires:
+            - vendor_rip-it
+      - step2_shippit:
+          requires:
+            - vendor_rip-it
+      - shippit:
+          requires:
+            - step2_shippit
+      - env_rm-router-glitch:
+          requires:
+            - step2_shippit
+      - rm-router-glitch:
+          requires:
+            - env_rm-router-glitch
+      - canary_strated:
+          requires:
+            - env_rm-router-glitch
+      - strated:
+          requires:
+            - canary_strated
+      - syncer_HOOK_STG:
+          requires:
+            - canary_strated
+      - HOOK_STG:
+          requires:
+            - syncer_HOOK_STG
+      - dispatch_add-router-v2-redirect:
+          requires:
+            - syncer_HOOK_STG
+      - add-router-v2-redirect:
+          requires:
+            - dispatch_add-router-v2-redirect
+      - drain_tweak-session:
+          requires:
+            - dispatch_add-router-v2-redirect
+      - tweak-session:
+          requires:
+            - drain_tweak-session
+      - phase2_rm-cache:
+          requires:
+            - drain_tweak-session
+      - rm-cache:
+          requires:
+            - phase2_rm-cache
+      - tmp_polaris-final
+      - bake_polaris-final_2:
+          requires:
+            - tmp_polaris-final
+      - polaris-final:
+          requires:
+            - bake_polaris-final_2
+      - Delta_fix-cache-hang:
+          requires:
+            - bake_polaris-final_2
+      - round2_fix-cache-hang_2:
+          requires:
+            - Delta_fix-cache-hang
+      - fix-cache-hang:
+          requires:
+            - round2_fix-cache-hang_2
+      - redo_node18-ship:
+          requires:
+            - round2_fix-cache-hang_2
+      - red_node18-ship_2:
+          requires:
+            - redo_node18-ship
+      - node18-ship:
+          requires:
+            - red_node18-ship_2
+      - enqueue_b-new:
+          requires:
+            - red_node18-ship_2
+      - bundle_b-new_2:
+          requires:
+            - enqueue_b-new
+      - b-new:
+          requires:
+            - bundle_b-new_2
+      - orchestrate_validate-full-integration-tests:
+          requires:
+            - bundle_b-new_2
+      - bundle_validate-full-integration-tests_2:
+          requires:
+            - orchestrate_validate-full-integration-tests
+      - validate-full-integration-tests:
+          requires:
+            - bundle_validate-full-integration-tests_2
